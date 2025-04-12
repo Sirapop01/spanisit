@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import Logo from "../assets/spa_logo.png";
+import Logo from "../assets/images/spa_logo.png";
 import Image from "next/image";
 
 export default function Navbar() {

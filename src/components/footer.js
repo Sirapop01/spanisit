@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import Logo from "../assets/spa_logo.png";
+import Logo from "../assets/images/spa_logo.png";
 import { Icon } from "@iconify/react";
 
 
@@ -9,7 +9,7 @@ export default function Footer() {
         <div>
             <div className="hidden md:flex md:flex-col items-center justify-center bg-secondary h-72  text-white items-center">
                 <div>
-                    <div className="flex gap-5 border-b border-white text-white text-sm  py-2">
+                    <div className="flex gap-5 border-b border-white text-white text-md py-2">
                         <Link href="" className="hover:text-primary">คณะวิทยาการจัดการ</Link>
                         <Link href="" className="hover:text-primary">คณะพาณิชยนาวีนานาชาติ</Link>
                         <Link href="" className="hover:text-primary">คณะวิศกรรมศาสตร์ ศรีราชา</Link>
@@ -53,7 +53,7 @@ export default function Footer() {
             </div>
             <div className="flex md:hidden flex-col items-center justify-center bg-secondary text-white py-6 px-4">
                 <div className="flex flex-col items-center px-4">
-                    <div className="flex flex-col justify-center gap-3 mb-4 text-sm w-full max-w-md">
+                    <div className="flex flex-col justify-center gap-3 mb-4 text-sm w-full max-w-md text-md">
                         <Link href="" className="hover:text-primary border-b border-white pb-1 text-center">คณะวิทยาการจัดการ</Link>
                         <Link href="" className="hover:text-primary border-b border-white pb-1 text-center">คณะพาณิชยนาวีนานาชาติ</Link>
                         <Link href="" className="hover:text-primary border-b border-white pb-1 text-center">คณะวิศกรรมศาสตร์ ศรีราชา</Link>
@@ -69,12 +69,15 @@ export default function Footer() {
                 </div>
 
                 <div className="flex gap-4">
-                    <Link href="https://facebook.com"><Icon icon="mdi:facebook" className="text-white hover:text-primary" width="28" /></Link>
-                    <Link href="https://instagram.com"><Icon icon="mdi:instagram" className="text-white hover:text-primary" width="28" /></Link>
-                    <Link href="https://x.com"><Icon icon="ri:twitter-x-line" className="text-white hover:text-primary" width="28" /></Link>
-                    <Link href="https://line.me"><Icon icon="simple-icons:line" className="text-white hover:text-primary" width="28" /></Link>
-                    <Link href="https://tiktok.com"><Icon icon="simple-icons:tiktok" className="text-white hover:text-primary" width="28" /></Link>
+                    <Link href="https://facebook.com"><Icon icon="mdi:facebook" className="text-white hover:text-primary hover:scale-125" width="28" /></Link>
+                    <Link href="https://instagram.com"><Icon icon="mdi:instagram" className="text-white hover:text-primary hover:scale-125" width="28" /></Link>
+                    <Link href="https://x.com"><Icon icon="ri:twitter-x-line" className="text-white hover:text-primary hover:scale-125" width="28" /></Link>
+                    <Link href="https://line.me"><Icon icon="simple-icons:line" className="text-white hover:text-primary hover:scale-125" width="28" /></Link>
+                    <Link href="https://tiktok.com"><Icon icon="simple-icons:tiktok" className="text-white hover:text-primary hover:scale-125" width="28" /></Link>
                 </div>
+            </div>
+            <div className="fixed bottom-0 left-0 right-0 bg-secondary text-white py-2 z-50">
+                <div className="text-center text-sm">© 2025 StudentCouncil KU SRC</div>
             </div>
         </div>
     )
