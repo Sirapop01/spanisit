@@ -32,8 +32,8 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                        className={`hover:text-secondary ${pathname.startsWith('/history') ? 'text-secondary' : 'text-white'}`}
-                        href="/history/1"
+                        className={`hover:text-secondary ${pathname === '/role' ? 'text-secondary' : 'text-white'}`}
+                        href="/role"
                     >
                         ทำเนียบสภา
                     </Link>
