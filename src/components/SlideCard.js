@@ -12,7 +12,8 @@ export default function SlideCard({ slide, index }) {
         md:hover:w-[110%]
       "
     >
-      <Link href={`/history/${slide.id}`} passHref>
+      <Link href={slide.path || '/'} passHref>
+        {/* Slide Image */}
         <div className="relative w-full h-full cursor-pointer group">
           <Image
             src={slide.image}

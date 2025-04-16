@@ -6,9 +6,7 @@ const slides = [
     id: 1,
     image: HisKU,
     title: 'ประวัติ มหาวิทยาลัยเกษตรศาสตร์ ศรีราชา',
-    ysears: [
-        
-    ],
+    path: '/history',
     description: [],
     caption: 'ประวัติ มหาวิทยาลัยเกษตรศาสตร์ ศรีราชา',
   },
