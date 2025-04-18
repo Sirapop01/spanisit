@@ -84,61 +84,24 @@ export default function Navbar() {
                         href="/"
                         onClick={() => setIsOpen(false)}
                     >
-                        หน้าหลัก
-                    </Link>
-
-                    <Link
-                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/members' ? 'text-secondary' : ''
-                            }`}
-                        href="/members"
-                        onClick={() => setIsOpen(false)}
-                    >
                         ทำเนียบสภา
                     </Link>
 
-                    <button
-                        onClick={() => setDropdownOpen(!isDropdownOpen)}
-                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary flex justify-between ${isWorkingPage ? 'text-secondary' : ''
-                            }`}
-                    >
-                        การทำงาน :
-                        <Icon
-                            icon="mdi:chevron-down"
-                            className={`transition-transform duration-500 ${isDropdownOpen ? 'rotate-180' : ''}`}
-                            width="20"
-                        />
-                    </button>
 
-                    {/* เมนูย่อย */}
-                    <div
-                        className={`flex flex-col gap-3 text-sm text-white w-full pl-6 overflow-hidden transition-all duration-600 ease-in-out transform 
-                            ${isDropdownOpen ? 'max-h-40 opacity-100 scale-y-100' : 'max-h-0 opacity-0 scale-y-95'}`}
+                    <Link
+                        className={`hover:text-secondary ${pathname === '/statue' ? 'text-secondary' : 'text-white'}`}
+                        href="/statue"
                     >
-                        <Link
-                            href="/activities"
-                            onClick={() => setIsOpen(false)}
-                            className={`border-b border-secondary pb-2 w-full hover:text-secondary ${pathname === '/activities' ? 'text-secondary' : ''
-                                }`}
-                        >
-                            กิจกรรม
-                        </Link>
+                        โครงการ/กิจกรรม
+                    </Link>
 
-                        <Link
-                            href="/issues"
-                            onClick={() => setIsOpen(false)}
-                            className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/issues' ? 'text-secondary' : ''
-                                }`}
-                        >
-                            การผลักดันปัญหา
-                        </Link>
-                    </div>
 
                     <Link
                         className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/regulations' ? 'text-secondary' : ''
                             }`}
                         href="/regulations"
                         onClick={() => setIsOpen(false)}
-                    >
+                        >
                         ระเบียบ
                     </Link>
 

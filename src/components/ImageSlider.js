@@ -26,11 +26,11 @@ export default function ImageSlider({ slides = [] }) {
     <div className="w-full max-w-6xl mx-auto my-10 px-4" data-aos="fade-up">
       <Swiper
         spaceBetween={5}
-        centeredSlides
-        slidesPerView={2.2}
+        
+        slidesPerView={2}
         breakpoints={{
           768: {
-            slidesPerView: 4,
+            slidesPerView: 3,
             centeredSlides: false,
             spaceBetween: 30,
           },
@@ -45,7 +45,7 @@ export default function ImageSlider({ slides = [] }) {
         className="overflow-visible custom-swiper"
       >
         {slides.map((slide, index) => (
-          <SwiperSlide key={index}>
+          <SwiperSlide key={index} className='!w-[250px] rounded-2xl'>
             <SlideCard slide={slide} index={index} />
           </SwiperSlide>
         ))}
