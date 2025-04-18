@@ -32,8 +32,8 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                        className={`hover:text-secondary ${pathname === '/role' ? 'text-secondary' : 'text-white'}`}
-                        href="/role"
+                        className={`hover:text-secondary ${pathname === '/member' ? 'text-secondary' : 'text-white'}`}
+                        href="/member"
                     >
                         ทำเนียบสภา
                     </Link>
@@ -115,9 +115,9 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/members' ? 'text-secondary' : ''
+                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/member' ? 'text-secondary' : ''
                             }`}
-                        href="/members"
+                        href="/member"
                         onClick={() => setIsOpen(false)}
                     >
                         ทำเนียบสภา
