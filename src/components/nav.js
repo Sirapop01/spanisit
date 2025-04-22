@@ -14,10 +14,12 @@ export default function Navbar() {
     const isWorkingPage = pathname.startsWith('/activities') || pathname.startsWith('/issues'); // สำหรับ dropdown
 
     return (
-        <div className="bg-primary h-16 ">
+        <div className="bg-primary h-16 sticky top-0 z-50 shadow-md"> {/* เพิ่ม sticky, top-0, z-50 */}
             <div className="hidden lg:flex justify-between items-center h-full max-w-7xl mx-auto px-8">
                 <div className="flex items-center gap-5">
-                    <Image src={Logo} alt="Logo" className="h-16 w-auto" />
+                    <a href="/">
+                        <Image  src={Logo} alt="Logo" className="h-16 w-auto cursor-pointer" />
+                    </a>
                     <div className="flex flex-col text-white text-sm">
                         <span>สภาผู้แทนนิสิต องค์การนิสิต</span>
                         <span>มหาวิทยาลัยเกษตรศาสตร์ วิทยาเขตศรีราชา</span>
@@ -66,8 +68,8 @@ export default function Navbar() {
                     </div>
 
                     <Link
-                        className={`hover:text-secondary ${pathname === '/statue' ? 'text-secondary' : 'text-white'}`}
-                        href="/statue"
+                        className={`hover:text-secondary ${pathname === '/rule' ? 'text-secondary' : 'text-white'}`}
+                        href="/rule"
                     >
                         ระเบียบ
                     </Link>
@@ -140,6 +142,7 @@ export default function Navbar() {
                     <div
                         className={`flex flex-col gap-3 text-sm text-white w-full pl-6 overflow-hidden transition-all duration-600 ease-in-out transform 
                             ${isDropdownOpen ? 'max-h-40 opacity-100 scale-y-100' : 'max-h-0 opacity-0 scale-y-95'}`}
+
                     >
                         <Link
                             href="/activities"
@@ -161,9 +164,9 @@ export default function Navbar() {
                     </div>
 
                     <Link
-                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/regulations' ? 'text-secondary' : ''
+                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/rule' ? 'text-secondary' : ''
                             }`}
-                        href="/regulations"
+                        href="/rule"
                         onClick={() => setIsOpen(false)}
                     >
                         ระเบียบ
