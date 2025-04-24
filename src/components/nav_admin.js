@@ -6,17 +6,23 @@ import Link from "next/link";
 import Logo from "../assets/images/spa_logo.png";
 import Image from "next/image";
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const pathname = usePathname();
     const isWorkingPage = pathname.startsWith('/activities') || pathname.startsWith('/issues'); // สำหรับ dropdown
+    const router = useRouter();
+
+    const handleClick = () => {
+        router.push('/admin')
+    }
 
     return (
         <div className="bg-primary h-16 ">
             <div className="hidden lg:flex justify-between items-center h-full max-w-7xl mx-auto px-8">
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-5 cursor-pointer" onClick={handleClick}>
                     <Image src={Logo} alt="Logo" className="h-16 w-auto" />
                     <div className="flex flex-col text-white text-sm">
                         <span>สภาผู้แทนนิสิต องค์การนิสิต</span>
@@ -26,7 +32,7 @@ export default function Navbar() {
                 <div className="flex gap-10 text-white">
                     <Link
                         className={`hover:text-secondary ${pathname === '/admin/member' ? 'text-secondary' : 'text-white'}`}
-                        href="/"
+                        href="/admin/member"
                     >
                         ทำเนียบสภา
                     </Link>
@@ -79,14 +85,15 @@ export default function Navbar() {
                 </div>
                 <div className="flex flex-col items-center mt-10 ml-5 mr-5 text-white text-sm font-semibold">
                     <Link
-                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/' ? 'text-secondary' : ''
+                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/admin/member' ? 'text-secondary' : ''
                             }`}
-                        href="/"
+                        href="/admin/member"
                         onClick={() => setIsOpen(false)}
                     >
                         ทำเนียบสภา
                     </Link>
 
+                    
 
                     <Link
                         className={`hover:text-secondary ${pathname === '/statue' ? 'text-secondary' : 'text-white'}`}
