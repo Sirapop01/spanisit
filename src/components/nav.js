@@ -6,17 +6,23 @@ import Link from "next/link";
 import Logo from "../assets/images/spa_logo.png";
 import Image from "next/image";
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const pathname = usePathname();
     const isWorkingPage = pathname.startsWith('/activities') || pathname.startsWith('/issues'); // สำหรับ dropdown
+    const router = useRouter();
+
+    const handleClick = () => {
+        router.push('/')
+    }
 
     return (
         <div className="bg-primary h-16 ">
             <div className="hidden lg:flex justify-between items-center h-full max-w-7xl mx-auto px-8">
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-5 cursor-pointer" onClick={handleClick}>
                     <Image src={Logo} alt="Logo" className="h-16 w-auto" />
                     <div className="flex flex-col text-white text-sm">
                         <span>สภาผู้แทนนิสิต องค์การนิสิต</span>
@@ -83,7 +89,7 @@ export default function Navbar() {
             </div>
 
             <div className="flex lg:hidden justify-between items-center h-full px-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3" onClick={handleClick}>
                     <Image src={Logo} alt="Logo" className="h-12 w-auto" />
                     <div className="flex flex-col text-white text-sm leading-tight">
                         <span>สภาผู้แทนนิสิต องค์การนิสิต</span>
