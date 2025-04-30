@@ -38,15 +38,15 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                        className={`hover:text-secondary ${pathname === '/role' ? 'text-secondary' : 'text-white'}`}
-                        href="/role"
+                        className={`hover:text-secondary ${pathname === '/admin/role' ? 'text-secondary' : 'text-white'}`}
+                        href="/admin/role"
                     >
                         ระเบียบ
                     </Link>
 
                     <Link
-                        className={`hover:text-secondary ${pathname === '/statue' ? 'text-secondary' : 'text-white'}`}
-                        href="/statue"
+                        className={`hover:text-secondary ${pathname === '/admin/activities' ? 'text-secondary' : 'text-white'}`}
+                        href="/admin/activities"
                     >
                         โครงการ/กิจกรรม
                     </Link>
