@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react"
 import { useRouter } from 'next/navigation';
 import { useUserAuth } from "@/context/UserAuthContext";
+import { toast } from 'react-toastify'
 
 export default function AdminLogin() {
     const [email, setEmail] = useState('')
@@ -25,9 +26,9 @@ export default function AdminLogin() {
         } catch (err) {
             setError(err.message)
             console.log(err)
+            toast.error("ไม่สามารถเข้าสู่ระบบได้ กรุณาตรวจสอบอีเมลและรหัสผ่าน")
         }
     }
-
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-200 p-4">
