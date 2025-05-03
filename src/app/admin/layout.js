@@ -5,6 +5,7 @@ import UserAuthContextProvider from "@/context/UserAuthContext";
 import ProtectedRoute from "@/auth/ProtectedRoute";
 import ToastNotification from '@/components/ToastNotification';
 import Navbar from '@/components/nav_admin';
+import Footer from '@/components/footer'
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -14,7 +15,7 @@ export default function AdminLayout({ children }) {
       <div className="min-h-screen bg-gray-100">
         {/* เพิ่ม Navbar หรือ Sidebar ของ Admin */}
         <ToastNotification/>
-        {isPublic ? children : <ProtectedRoute><Navbar/>{children}</ProtectedRoute>}
+        {isPublic ? children : <ProtectedRoute><Navbar/>{children}<Footer/></ProtectedRoute>}
       </div>
     </UserAuthContextProvider>
   );

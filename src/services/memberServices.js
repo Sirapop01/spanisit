@@ -13,7 +13,7 @@ export const addMember = async (memberData) => {
         console.log('Document written with ID: ', docRef.id);
         return { success: true, id: docRef.id };
     } catch (e) {
-        console.error('Error adding document: ', e);
+        console.log('Error adding document: ', e);
         return { success: false, error: e };
     }
 }
