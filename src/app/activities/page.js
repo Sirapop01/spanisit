@@ -49,7 +49,7 @@ export default function Activity() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {years.map((item, i) => (
-                        <Link key={item.year} href={`/activity/${item.year}`}>
+                        <Link key={item.year} href={`/activities/${item.year}`}>
                             <div
                                 data-aos="fade-up"
                                 data-aos-delay={i * 100}
