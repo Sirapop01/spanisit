@@ -1,12 +1,12 @@
 import Member from "@/models/memberModel";
 import { db } from "@/config/firebase";
-import { 
+import {
     collection,
-    addDoc, 
-    getDocs, 
+    addDoc,
+    getDocs,
     query,
     where,
-} from  "firebase/firestore"
+} from "firebase/firestore"
 
 const memberRef = collection(db, 'members')
 
@@ -15,7 +15,7 @@ export const addMember = async (memberData) => {
         const member = new Member(memberData)
 
         const memberDataForFirestore = member.toFirestore()
-        
+
         const docRef = await addDoc(memberRef, memberDataForFirestore)
 
         console.log('Document written with ID: ', docRef.id);
@@ -30,8 +30,8 @@ export const getMemberByYrs = async (memberYrs) => {
     try {
         const querySnapshot = await getDocs(query(memberRef, where('year', '==', memberYrs)))
 
-        if(querySnapshot.empty) {
-            return { success:true, data: [] }
+        if (querySnapshot.empty) {
+            return { success: true, data: [] }
         }
 
         const members = querySnapshot.docs.map(doc => ({
@@ -40,7 +40,33 @@ export const getMemberByYrs = async (memberYrs) => {
         }))
         return { success: true, data: members }
     } catch (e) {
-        console.log('Error getting document: ',e)
+        console.log('Error getting document: ', e)
         return { success: false, error: e }
     }
 }
+
+export const getAvailableYears = async () => {
+    try {
+        const querySnapshot = await getDocs(memberRef);
+
+        if (querySnapshot.empty) {
+            return { success: true, data: [] };
+        }
+
+        const yearsSet = new Set();
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.year) {
+                yearsSet.add(data.year);
+            }
+        });
+
+        const yearsArray = Array.from(yearsSet).sort((a, b) => b - a);
+
+        return { success: true, data: yearsArray };
+    } catch (e) {
+        console.log('Error getting available years: ', e);
+        return { success: false, error: e };
+    }
+};
