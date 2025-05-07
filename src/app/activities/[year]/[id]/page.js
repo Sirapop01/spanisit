@@ -3,63 +3,64 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
-import Banner from '@/assets/images/banner.png';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 import Navbar from '@/components/nav'
 import Footer from '@/components/footer'
-
-// ตัวอย่างข้อมูลกิจกรรม (คุณสามารถแทนที่ด้วยข้อมูลจริงจาก API)
-const activityData = [
-    {
-        id: 1,
-        title: 'กิจกรรม A',
-        description: 'รายละเอียดของกิจกรรม A รวมถึงการเรียนรู้และพัฒนา...',
-        duration: '1 มกราคม - 31 ธันวาคม 2566',
-        location: 'หอประชุมใหญ่',
-        images: [
-            '/images/activity-image1.jpg',
-            '/images/activity-image2.jpg',
-            '/images/activity-image3.jpg',
-            '/images/activity-image4.jpg',
-        ]
-    },
-    {
-        id: 2,
-        title: 'กิจกรรม B',
-        description: 'รายละเอียดของกิจกรรม B เป็นกิจกรรมที่เน้นการสร้างความร่วมมือ...',
-        duration: '15 พฤษภาคม - 30 กันยายน 2567',
-        location: 'สนามกีฬา',
-        images: [
-            '/images/activity-image5.jpg',
-            '/images/activity-image6.jpg',
-            '/images/activity-image7.jpg',
-            '/images/activity-image8.jpg',
-        ]
-    },
-    // เพิ่มกิจกรรมอื่นๆ ที่มี id, title, description, duration, location, images
-]
+import { getActivityById } from '@/services/activityServices'
+import { format } from 'date-fns'
+import { th } from 'date-fns/locale'
+import BannerSection from '@/components/BannerSection'
 
 export default function ActivityDetailPage() {
+    const MySwal = withReactContent(Swal)
     const params = useParams()
     const { year, id } = params
     const [activity, setActivity] = useState(null)
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        // ดึงข้อมูลกิจกรรมจาก data (แทนการดึงจาก API จริงๆ)
-        const activityDetail = activityData.find(item => item.id === parseInt(id))
-        setActivity(activityDetail)
-    }, [id])
+        if (!id) return;
+        console.log("Activity ID:", id);
+        const fetchActivity = async () => {
+            const res = await getActivityById(id);
+            console.log("Activity data:", res.data); // ✅ ดูผลลัพธ์จริง
+            if (res.success) {
+                setActivity(res.data);
+            } else {
+                console.error(res.error);
+            }
+            setLoading(false);
+        };
+        fetchActivity();
+    }, [id]);
+
+    useEffect(() => {
+        if (loading) {
+            MySwal.fire({
+                title: 'กำลังโหลดข้อมูล...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading()
+                }
+            })
+        } else {
+            Swal.close()
+        }
+    }, [loading])
+
+    const formatDateRange = (start, end) => {
+        if (!start || !end) return ''
+        const startDate = start.toDate()
+        const endDate = end.toDate()
+        return `${format(startDate, 'd MMMM yyyy', { locale: th })} - ${format(endDate, 'd MMMM yyyy', { locale: th })}`
+    }
 
     if (!activity) {
         return (
             <div>
                 <Navbar />
-                <Image
-                    src={Banner}
-                    alt="Banner"
-                    className="w-full object-cover h-56"
-                    data-aos="fade-up"
-                />
+                <BannerSection />
                 <div className="max-w-7xl mx-auto px-4 py-10">
                     <p className="text-center text-gray-500">ไม่พบข้อมูลกิจกรรมนี้</p>
                 </div>
@@ -71,12 +72,7 @@ export default function ActivityDetailPage() {
     return (
         <div>
             <Navbar />
-            <Image
-                src={Banner}
-                alt="Banner"
-                className="w-full object-cover h-56"
-                data-aos="fade-up"
-            />
+            <BannerSection />
             <div className="max-w-7xl mx-auto px-4 py-10">
                 <h1 className="text-3xl font-bold text-yellow-700 mb-6 text-center">
                     {activity.title}
@@ -84,12 +80,16 @@ export default function ActivityDetailPage() {
 
                 <div className="mb-6">
                     <p className="text-xl font-semibold text-gray-700">รายละเอียดโครงการ</p>
-                    <p className="text-lg text-gray-600 mt-2">{activity.description}</p>
+                    <p className="text-lg text-gray-600 mt-2 whitespace-pre-line">
+                        {activity.details}
+                    </p>
                 </div>
 
                 <div className="mb-6">
                     <p className="text-xl font-semibold text-gray-700">ระยะเวลาโครงการ</p>
-                    <p className="text-lg text-gray-600 mt-2">{activity.duration}</p>
+                    <p className="text-lg text-gray-600 mt-2">
+                        {formatDateRange(activity.startDate, activity.endDate)}
+                    </p>
                 </div>
 
                 <div className="mb-6">
@@ -100,17 +100,10 @@ export default function ActivityDetailPage() {
                 <div className="mb-6">
                     <p className="text-xl font-semibold text-gray-700">ภาพกิจกรรม</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
-                        {activity.images.map((image, index) => (
+                        {activity.photoURL.map((image, index) => (
                             <div
                                 key={index}
-                                className="
-                                        relative group
-                                        rounded-xl overflow-hidden
-                                        shadow-lg border border-gray-200
-                                        bg-white
-                                        transition-transform duration-300
-                                        hover:shadow-2xl hover:scale-105
-                                        "
+                                className="relative group rounded-xl overflow-hidden shadow-lg border border-gray-200 bg-white transition-transform duration-300 hover:shadow-2xl hover:scale-105"
                             >
                                 <img
                                     src={image}
@@ -121,9 +114,14 @@ export default function ActivityDetailPage() {
                         ))}
                     </div>
                 </div>
-                <Link href={`/activity/${year}`}>
-                    <button className="px-6 py-3 bg-blue-500 text-white rounded-full mt-6 hover:bg-blue-600 transition">
-                        กลับไปหน้ากิจกรรม
+                <Link href={`/activities/${year}`}>
+                    <button
+                        className="px-6 py-3 text-white rounded-full mt-6 transition cursor-pointer"
+                        style={{ backgroundColor: '#D98E04' }}
+                        onMouseOver={e => e.currentTarget.style.backgroundColor = '#b87403'}
+                        onMouseOut={e => e.currentTarget.style.backgroundColor = '#D98E04'}
+                    >
+                        กลับไปหน้ากิจกรรม ปีการศึกษา {year}
                     </button>
                 </Link>
             </div>
