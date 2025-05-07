@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/nav'
 import Footer from '@/components/footer'
@@ -10,16 +10,48 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 
 import roles from '../../data/MemberData'
+import { getMemberByYrs } from '@/services/memberServices'
 
 export default function RolePage() {
 
-    const currentYear = new Date().getFullYear();
-    const startYear = 2540;
-    const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => currentYear - i + 543);
+    const [members, setMembers] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
+
+    const [selectedYear, setSelectedYear] = useState(null)
+    const currentYear = new Date().getFullYear(); 
+    const startYear = 2567;
+    const years = Array.from({ length: currentYear - (startYear - 543) + 1 }, (_, i) => currentYear - i + 543);
+
 
     useEffect(() => {
         AOS.init({ duration: 800, once: true })
     }, [])
+
+    useEffect(() => {
+        console.log(members)
+    }, [members])
+
+    useEffect(() => {
+        const fetchMember = async () => {
+            setLoading(true)
+            try {
+                const response = await getMemberByYrs(parseInt(selectedYear))
+                if(response.success) {
+                    setMembers(response.data)
+                } else {
+                    setError("ไม่สามารถโหลดข้อมูลสมาชิกในวาระที่เลือกได้")
+                }
+            } catch (e) {
+                setError("เกิดข้อผิดพลาดขณะดึงข้อมูลสมาชิกในวาระที่เลือก")
+            } finally {
+                setLoading(false)
+            }
+        }
+        if (selectedYear) {
+            fetchMember()
+        }
+    }, [selectedYear])
 
     // 1. ประธาน (id "0")
     const presidents = useMemo(() => roles.filter(r => r.id === '0'), [roles])
@@ -57,7 +89,11 @@ export default function RolePage() {
                     <h2 className="text-xl font-bold text-primary">
                         ทำเนียบสภาฯ ประจำปีการศึกษา
                     </h2>
-                    <select className="mt-4 md:mt-0 border rounded px-4 py-2">
+                    <select
+                        className="mt-4 md:mt-0 border rounded px-4 py-2"
+                        value={selectedYear ?? ''}
+                        onChange={(e) => setSelectedYear(Number(e.target.value))}
+                    >
                         <option value="" disabled>เลือกปี</option>
                         {years.map((year) => (
                             <option key={year} value={year}>
