@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Footer from "../../../../components/footer";
 import LoadingSpinner from "@/components/loading";
 import { useRouter } from 'next/navigation'
 
@@ -340,7 +339,6 @@ export default function Member() {
           </form>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

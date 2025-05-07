@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams } from 'next/navigation' // ใช้ 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -12,12 +12,15 @@ import Banner from '@/assets/images/banner.png'
 // AOS
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import { getActivityByYrs } from '@/services/activityServices'
 
 export default function YearActivityPage() {
-  const params = useParams()
-  const year = params.year   // ดึงปีจาก URL
+  const params = useParams() // ดึงปีจาก URL
+  const [error, setError] = useState(null)
+  const year = params.year  // ใช้ปีจาก useParams()
 
   const [images, setImages] = useState([])
+  const [activities, setActivities] = useState([])
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true })
@@ -32,13 +35,31 @@ export default function YearActivityPage() {
     if (year) {
       const filtered = allData.filter((item) => item.year === year)
       setImages(filtered)
+      const fetchActivities = async () => {
+        try {
+          const response = await getActivityByYrs(parseInt(year))
+          if(response.success) {
+            setActivities(response.data)
+          } else {
+            setError("Failed to load activities.");
+          }
+
+        } catch (e) {
+          setError("An error occurred while fetching activities.");
+        }
+      }
+      fetchActivities()
     }
   }, [year])
+
+  useEffect(() => {
+    console.log("Updated activities: ", activities)
+  }, [activities])
+
 
   return (
     <div>
       <Navbar />
-
       <Image
         src={Banner}
         alt="Banner"
@@ -61,7 +82,7 @@ export default function YearActivityPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {images.map((item, idx) => (
-              <Link key={item.id} href={`/activity/${year}/${item.id}`}>
+              <Link key={item.id} href={`/activities/${year}/${item.id}`}>
                 <div
                   data-aos="fade-up"
                   data-aos-delay={idx * 100}
