@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation' // ใช้ 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -12,50 +12,62 @@ import Banner from '@/assets/images/banner.png'
 // AOS
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+
+// SweetAlert2
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
+
 import { getActivityByYrs } from '@/services/activityServices'
 
 export default function YearActivityPage() {
-  const params = useParams() // ดึงปีจาก URL
-  const [error, setError] = useState(null)
-  const year = params.year  // ใช้ปีจาก useParams()
+  const params = useParams()
+  const year = params.year
 
-  const [images, setImages] = useState([])
   const [activities, setActivities] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true })
+  }, [])
 
-    // ตัวอย่าง mock data
-    const allData = [
-      { id: 1, title: 'กิจกรรม A', year: '2566', url: '/sample1.jpg' },
-      { id: 2, title: 'กิจกรรม B', year: '2567', url: '/sample2.jpg' },
-      { id: 3, title: 'กิจกรรม C', year: '2567', url: '/sample3.jpg' },
-    ]
+  useEffect(() => {
+    const fetchActivities = async () => {
+      setLoading(true)
+      try {
+        const response = await getActivityByYrs(parseInt(year))
+        if (response.success) {
+          setActivities(response.data)
+        } else {
+          setError("ไม่สามารถโหลดกิจกรรมได้")
+        }
+      } catch (e) {
+        setError("เกิดข้อผิดพลาดขณะดึงข้อมูลกิจกรรม")
+      } finally {
+        setLoading(false)
+      }
+    }
 
     if (year) {
-      const filtered = allData.filter((item) => item.year === year)
-      setImages(filtered)
-      const fetchActivities = async () => {
-        try {
-          const response = await getActivityByYrs(parseInt(year))
-          if(response.success) {
-            setActivities(response.data)
-          } else {
-            setError("Failed to load activities.");
-          }
-
-        } catch (e) {
-          setError("An error occurred while fetching activities.");
-        }
-      }
       fetchActivities()
     }
   }, [year])
 
   useEffect(() => {
-    console.log("Updated activities: ", activities)
-  }, [activities])
-
+    if (loading) {
+      MySwal.fire({
+        title: 'กำลังโหลดข้อมูล...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading()
+        }
+      })
+    } else {
+      Swal.close()
+    }
+  }, [loading])
 
   return (
     <div>
@@ -65,6 +77,7 @@ export default function YearActivityPage() {
         alt="Banner"
         className="w-full object-cover h-56"
         data-aos="fade-up"
+        priority // ✅ เพิ่ม priority สำหรับ LCP image
       />
 
       <div className="max-w-7xl mx-auto px-4 py-10">
@@ -75,26 +88,37 @@ export default function YearActivityPage() {
           โครงการ/กิจกรรม – ปีการศึกษา {year}
         </h1>
 
-        {images.length === 0 ? (
+        {error && (
+          <p className="text-center text-red-500" data-aos="fade-up">
+            {error}
+          </p>
+        )}
+
+        {!error && activities.length === 0 ? (
           <p className="text-center text-gray-500" data-aos="fade-up">
             ไม่พบกิจกรรมในปี {year}
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {images.map((item, idx) => (
+            {activities.map((item, idx) => (
               <Link key={item.id} href={`/activities/${year}/${item.id}`}>
                 <div
                   data-aos="fade-up"
                   data-aos-delay={idx * 100}
                   className="relative group rounded-xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-2xl transition duration-300 bg-white cursor-pointer"
                 >
-                  <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center z-10">
-                    <p className="text-white text-lg font-semibold text-center px-2">
+                  {/* ข้อความที่ขอบล่างของรูป */}
+                  <div
+                    className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent p-4 opacity-100 md:opacity-0 group-hover:opacity-100 transition duration-300"
+                  >
+                    <p className="text-white text-lg font-semibold text-center">
                       {item.title}
                     </p>
                   </div>
+
+                  {/* รูปภาพ */}
                   <img
-                    src={item.url}
+                    src={item.photoURL[0]}
                     alt={item.title}
                     className="w-full h-48 object-cover"
                   />
@@ -103,6 +127,16 @@ export default function YearActivityPage() {
             ))}
           </div>
         )}
+        <Link href={`/activities`}>
+              <button
+                className="px-6 py-3 text-white rounded-full mt-6 transition cursor-pointer"
+                style={{ backgroundColor: '#D98E04' }}
+                onMouseOver={e => e.currentTarget.style.backgroundColor = '#b87403'}
+                onMouseOut={e => e.currentTarget.style.backgroundColor = '#D98E04'}
+              >
+                กลับไปหน้ากิจกรรม
+              </button>
+            </Link>
       </div>
 
       <Footer />

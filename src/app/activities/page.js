@@ -4,66 +4,84 @@ import { useEffect, useState } from 'react'
 import Footer from '@/components/footer'
 import Navbar from '@/components/nav'
 import Link from 'next/link'
-import Banner from '@/assets/images/banner.png'
-import Image from 'next/image'
+import Swal from 'sweetalert2'
 
 // AOS
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 
+import { getYearsWithActivities } from '@/services/activityServices'
+import BannerSection from '@/components/BannerSection'
+
 export default function Activity() {
     const [years, setYears] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
     useEffect(() => {
         AOS.init({ duration: 1000 })
 
-        // mock ปี + รูปภาพของแต่ละปี
-        const yearData = [
-            { year: '2569', image: '/images/year-2569.jpg' },
-            { year: '2568', image: '/images/year-2568.jpg' },
-            { year: '2567', image: '/images/year-2567.jpg' },
-            { year: '2566', image: '/images/year-2566.jpg' },
-            { year: '2565', image: '/images/year-2565.jpg' },
-            { year: '2564', image: '/images/year-2564.jpg' },
-            { year: '2563', image: '/images/year-2563.jpg' },
-          ]
-          
+        const fetchYearsWithActivities = async () => {
+            const loadingSwal = Swal.fire({
+                title: 'กำลังโหลดข้อมูล...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading()
+                }
+            })
 
-        setYears(yearData)
+            try {
+                const response = await getYearsWithActivities()
+
+                if (response.success) {
+                    setYears(response.data)
+                    console.log('Years with activities:', response.data)
+                } else {
+                    setError('ไม่สามารถดึงข้อมูลปีที่มีกิจกรรมได้')
+                }
+            } catch (err) {
+                setError('เกิดข้อผิดพลาดในการดึงข้อมูล')
+            } finally {
+                Swal.close()
+                setLoading(false)
+            }
+        }
+
+        fetchYearsWithActivities()
     }, [])
 
     return (
         <div>
             <Navbar />
-            <Image
-                src={Banner}
-                alt="Banner"
-                className="w-full object-cover"
-                data-aos="fade-up"
-            />
+            <BannerSection />
 
             <div className="max-w-5xl mx-auto px-4 py-10">
                 <h1 className="text-3xl font-bold text-yellow-700 mb-6 text-center" data-aos="zoom-in">
-                โครงการ/กิจกรรม
+                    โครงการ/กิจกรรม
                 </h1>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {years.map((item, i) => (
-                        <Link key={item.year} href={`/activities/${item.year}`}>
+                    {years.map((item, index) => (
+                        <Link key={`${item.year}-${index}`} href={`/activities/${item.year}`}>
                             <div
                                 data-aos="fade-up"
-                                data-aos-delay={i * 100}
+                                data-aos-delay={100}
                                 className="relative group rounded-xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-2xl transition duration-300 bg-white cursor-pointer"
                             >
-                                {/* overlay ปี พ.ศ. */}
-                                <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center z-10">
-                                    <p className="text-white text-2xl font-bold">ปีการศึกษา {item.year}</p>
-                                </div>
                                 <img
-                                    src={item.image}
+                                    src={item.photoURL[0]}
                                     alt={`year-${item.year}`}
                                     className="w-full h-48 object-cover"
                                 />
+
+                                {/* ข้อความด้านล่าง */}
+                                <div
+                                    className="absolute bottom-0 left-0 w-full px-4 py-2 bg-white/80 
+                                               text-center text-yellow-800 text-lg font-semibold 
+                                               md:opacity-0 md:group-hover:opacity-100 
+                                               transition-opacity duration-300"
+                                >
+                                    ปีการศึกษา {item.year}
+                                </div>
                             </div>
                         </Link>
                     ))}
