@@ -6,6 +6,8 @@ import {
     getDocs,
     query,
     where,
+    getDoc,
+    doc,
 } from "firebase/firestore"
 
 const memberRef = collection(db, 'members')
@@ -67,6 +69,22 @@ export const getAvailableYears = async () => {
         return { success: true, data: yearsArray };
     } catch (e) {
         console.log('Error getting available years: ', e);
+        return { success: false, error: e };
+    }
+};
+
+export const getMemberById = async (id) => {
+    try {
+        const docRef = doc(db, 'members', id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            return { success: true, data: { id: docSnap.id, ...docSnap.data() } };
+        } else {
+            return { success: false, error: 'Document not found' };
+        }
+    } catch (e) {
+        console.log('Error getting document by ID: ', e);
         return { success: false, error: e };
     }
 };

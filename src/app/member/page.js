@@ -132,7 +132,7 @@ export default function RolePage() {
             <div className="px-4 py-12 max-w-6xl mx-auto space-y-16 ">
                 {/* ปีการศึกษา */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full gap-4" data-aos="fade-up">
-                    <h2 className="text-xl font-bold text-primary">ทำเนียบสภาฯ ประจำปีการศึกษา</h2>
+                    <h2 className="text-xl font-bold text-primary">ทำเนียบสภาฯ ประจำปีการศึกษา {selectedYear}</h2>
                     <select
                         className="mt-4 md:mt-0 border rounded px-4 py-2"
                         value={selectedYear ?? ''}
