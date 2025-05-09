@@ -13,7 +13,7 @@ import Swal from 'sweetalert2'
 import { getAvailableYears, getMemberByYrs } from '@/services/memberServices'
 import BannerSection from '@/components/BannerSection'
 
-export default function RolePage() {
+export default function MemberPage() {
     const [members, setMembers] = useState([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
