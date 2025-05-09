@@ -13,7 +13,7 @@ import Link from 'next/link'
 
 const MySwal = withReactContent(Swal)
 
-export default function MemberPage() {
+export default function MemberIdPage() {
     const { id } = useParams()
     const router = useRouter()
     const [member, setMember] = useState(null)

@@ -8,6 +8,7 @@ import {
     where,
     getDoc,
     doc,
+    updateDoc,
 } from "firebase/firestore"
 
 const memberRef = collection(db, 'members')
@@ -86,5 +87,18 @@ export const getMemberById = async (id) => {
     } catch (e) {
         console.log('Error getting document by ID: ', e);
         return { success: false, error: e };
+    }
+};
+
+export const updateMember = async (id, updatedData) => {
+    try {
+        const docRef = doc(db, 'members', id);
+
+        await updateDoc(docRef, updatedData);
+
+        return { success: true, message: 'อัปเดตข้อมูลสมาชิกสำเร็จ' };
+    } catch (error) {
+        console.log('Error updating document: ', error);
+        return { success: false, message: 'ไม่สามารถอัปเดตข้อมูลสมาชิกได้' };
     }
 };
