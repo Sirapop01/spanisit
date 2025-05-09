@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getAvailableYears, getMemberByYrs } from '@/services/memberServices'
+import { getAvailableYears, getMemberByYrs, deleteMemberById } from '@/services/memberServices'
 import Image from 'next/image'
 import Link from 'next/link'
 import Swal from 'sweetalert2'
@@ -32,7 +32,6 @@ export default function AdminMemberPage() {
     fetchYears()
   }, [])
 
-
   useEffect(() => {
     const fetchMembers = async () => {
       if (!selectedYear) return
@@ -41,7 +40,6 @@ export default function AdminMemberPage() {
       const res = await getMemberByYrs(Number(selectedYear))
       if (res.success) {
         setMembers(res.data)
-        console.log("้ข้อมูล",res.data);
       } else {
         setError('โหลดข้อมูลสมาชิกไม่สำเร็จ')
       }
@@ -49,11 +47,35 @@ export default function AdminMemberPage() {
       Swal.close()
     }
     fetchMembers()
-    
   }, [selectedYear])
 
   const handleAddMember = () => {
     router.push(`/admin/member/add`)
+  }
+
+  const handleDeleteMember = async (memberId) => {
+    const confirmDelete = await Swal.fire({
+      title: 'คุณแน่ใจไหม?',
+      text: "คุณจะลบสมาชิกคนนี้ออกจากระบบ!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'ใช่, ลบเลย',
+      cancelButtonText: 'ยกเลิก'
+    })
+
+    if (confirmDelete.isConfirmed) {
+      Swal.fire({ title: 'กำลังลบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
+
+      const res = await deleteMemberById(memberId)
+      if (res.success) {
+        setMembers(members.filter((m) => m.id !== memberId))
+        Swal.fire('สำเร็จ!', 'สมาชิกถูกลบเรียบร้อยแล้ว', 'success')
+      } else {
+        Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถลบสมาชิกได้', 'error')
+      }
+
+      Swal.close()
+    }
   }
 
   return (
@@ -96,14 +118,22 @@ export default function AdminMemberPage() {
               )}
               <div className="mt-3 text-center">
                 <p className="font-bold">{m.name}</p>
-                <p className="text-sm text-gray-600">{m.position}</p>
+                <p className="text-sm text-gray-600 inline">{m.position}</p>
               </div>
-              <Link
-                href={`/admin/member/edit/${m.id}`}
-                className="mt-3 inline-block text-blue-600 hover:underline text-sm"
-              >
-                แก้ไขข้อมูล
-              </Link>
+              <div className='mt-4 flex gap-5 items-center'>
+                <Link
+                  href={`/admin/member/edit/${m.id}`}
+                  className="mt-3 inline-block text-blue-600 hover:underline text-sm"
+                >
+                  แก้ไขข้อมูล
+                </Link>
+                <button
+                  onClick={() => handleDeleteMember(m.id)}
+                  className="mt-3 inline-block text-red-600 hover:underline text-sm cursor-pointer"
+                >
+                  ลบสมาชิก
+                </button>
+              </div>
             </div>
           ))}
         </div>
