@@ -9,7 +9,9 @@ import {
     getDoc,
     doc,
     updateDoc,
+    deleteDoc,
 } from "firebase/firestore"
+
 
 const memberRef = collection(db, 'members')
 
@@ -100,5 +102,24 @@ export const updateMember = async (id, updatedData) => {
     } catch (error) {
         console.log('Error updating document: ', error);
         return { success: false, message: 'ไม่สามารถอัปเดตข้อมูลสมาชิกได้' };
+    }
+};
+
+export const deleteMemberById = async (id) => {
+    try {
+        const docRef = doc(db, 'members', id);
+
+        const memberSnapshot = await getDoc(docRef);
+        if (!memberSnapshot.exists()) {
+            return { success: false, message: 'ไม่พบสมาชิกที่ต้องการลบ' };
+        }
+
+        // 1. ลบเอกสารสมาชิกจาก Firestore เท่านั้น
+        await deleteDoc(docRef);
+
+        return { success: true, message: 'ลบสมาชิกสำเร็จ' };
+    } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการลบเอกสารสมาชิก: ', error);
+        return { success: false, message: 'ไม่สามารถลบสมาชิกได้' };
     }
 };
