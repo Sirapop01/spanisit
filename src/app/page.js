@@ -1,34 +1,32 @@
 'use client';
-
-import { useEffect } from 'react';
-import Nav from '../components/nav';
-import Footer from '../components/footer';
-import ImageSlider from "../components/ImageSlider";
-import Banner from '../assets/images/banner.png';
-import Image from 'next/image';
-import slides from "../data/SlidetData";
+import ImageSlider from "@/components/ImageSlider";
+import Nav from "@/components/nav"
+import Footer from "@/components/footer";
+import HeroBanner from "@/components/HeroBanner";
+import React, { useEffect } from 'react';
 import AOS from 'aos';
-import 'aos/dist/aos.css';  // อย่าลืมนำเข้า AOS CSS
+import 'aos/dist/aos.css';
 
-export default function Timeline() {
-  useEffect(() => {
-    AOS.init({ duration: 1000 }); // กำหนดเวลาในการเคลื่อนไหว
-    AOS.refresh(); // รีเฟรช AOS หลังจากที่ component render เสร็จ
-  }, []);
+// ✅ เพิ่มการ import ข้อมูล slides กลับเข้ามา
+import slides from "@/data/SlidetData";
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Nav />
-      <Image
-        src={Banner}
-        alt="Banner"
-        className="w-full object-cover"
-        data-aos="fade-up" // กำหนดให้เกิดการค่อยๆ ขึ้นมา
-      />
-      <ImageSlider slides={slides} aos="fade-up"/>
-      <div data-aos="fade-up">
-        <Footer />
-      </div>
-    </div>
-  );
+export default function Home() {
+    useEffect(() => {
+        AOS.init({
+            duration: 800,
+            once: true,
+        });
+    }, []);
+
+    return (
+        <div>
+            <Nav />
+            <HeroBanner />
+            
+            {/* ✅ แก้ไขโดยการเพิ่ม prop 'slides' กลับเข้าไป */}
+            <ImageSlider slides={slides} />
+            
+            <Footer />
+        </div>
+    )
 }
