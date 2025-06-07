@@ -11,6 +11,7 @@ import { getActivityById } from '@/services/activityServices'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import BannerSection from '@/components/BannerSection'
+import LoadingSpinner from '@/components/loading' //  เพิ่ม LoadingSpinner
 
 export default function ActivityDetailPage() {
     const MySwal = withReactContent(Swal)
@@ -21,48 +22,51 @@ export default function ActivityDetailPage() {
 
     useEffect(() => {
         if (!id) return;
-        console.log("Activity ID:", id);
+        setLoading(true); // เริ่ม loading
         const fetchActivity = async () => {
             const res = await getActivityById(id);
-            console.log("Activity data:", res.data); // ✅ ดูผลลัพธ์จริง
             if (res.success) {
                 setActivity(res.data);
             } else {
                 console.error(res.error);
+                // แสดง alert ว่าไม่พบข้อมูล
+                 Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่พบข้อมูล',
+                    text: 'ไม่พบข้อมูลของกิจกรรมที่คุณกำลังค้นหา',
+                });
             }
-            setLoading(false);
+            setLoading(false); // สิ้นสุด loading
         };
         fetchActivity();
     }, [id]);
-
-    useEffect(() => {
-        if (loading) {
-            MySwal.fire({
-                title: 'กำลังโหลดข้อมูล...',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading()
-                }
-            })
-        } else {
-            Swal.close()
-        }
-    }, [loading])
-
+    
+    // ✅ ฟังก์ชันที่แก้ไขแล้ว
     const formatDateRange = (start, end) => {
-        if (!start || !end) return ''
-        const startDate = start.toDate()
-        const endDate = end.toDate()
-        return `${format(startDate, 'd MMMM yyyy', { locale: th })} - ${format(endDate, 'd MMMM yyyy', { locale: th })}`
+        if (!start || !end) return '';
+        // ตรวจสอบและแปลงเป็น Date object เพื่อความปลอดภัย
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        // ตรวจสอบว่าเป็นวันที่ถูกต้องหรือไม่
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return '';
+        
+        return `${format(startDate, 'd MMMM yyyy', { locale: th })} - ${format(endDate, 'd MMMM yyyy', { locale: th })}`;
+    };
+
+
+    // แสดง Loading UI
+    if (loading) {
+        return <LoadingSpinner />;
     }
 
+    // แสดงเมื่อไม่พบข้อมูลกิจกรรม
     if (!activity) {
         return (
             <div>
                 <Navbar />
                 <BannerSection />
                 <div className="max-w-7xl mx-auto px-4 py-10">
-                    <p className="text-center text-gray-500">ไม่พบข้อมูลกิจกรรมนี้</p>
+                    <p className="text-center text-gray-500">กำลังโหลดข้อมูล หรือ ไม่พบกิจกรรมที่ต้องการ</p>
                 </div>
                 <Footer />
             </div>
@@ -78,28 +82,28 @@ export default function ActivityDetailPage() {
                     {activity.title}
                 </h1>
 
-                <div className="mb-6">
+                <div className="mb-6 bg-white p-6 rounded-lg shadow-sm">
                     <p className="text-xl font-semibold text-gray-700">รายละเอียดโครงการ</p>
                     <p className="text-lg text-gray-600 mt-2 whitespace-pre-line">
                         {activity.details}
                     </p>
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-6 bg-white p-6 rounded-lg shadow-sm">
                     <p className="text-xl font-semibold text-gray-700">ระยะเวลาโครงการ</p>
                     <p className="text-lg text-gray-600 mt-2">
                         {formatDateRange(activity.startDate, activity.endDate)}
                     </p>
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-6 bg-white p-6 rounded-lg shadow-sm">
                     <p className="text-xl font-semibold text-gray-700">สถานที่จัดโครงการ</p>
                     <p className="text-lg text-gray-600 mt-2">{activity.location}</p>
                 </div>
 
                 <div className="mb-6">
                     <p className="text-xl font-semibold text-gray-700">ภาพกิจกรรม</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
                         {activity.photoURL.map((image, index) => (
                             <div
                                 key={index}
