@@ -38,8 +38,8 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                        className={`hover:text-secondary ${pathname === '/admin/role' ? 'text-secondary' : 'text-white'}`}
-                        href="/admin/role"
+                        className={`hover:text-secondary ${pathname === '/admin/regulations' ? 'text-secondary' : 'text-white'}`}
+                        href="/admin/regulations"
                     >
                         ระเบียบ
                     </Link>
