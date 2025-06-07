@@ -41,7 +41,7 @@ export default function RegulationPage() {
         if (docs.length === 0) {
             return <p className="text-center text-gray-500">ยังไม่มีเอกสารในหมวดหมู่ {title}</p>;
         }
-        
+
         const groupedByYear = docs.reduce((acc, doc) => {
             (acc[doc.year] = acc[doc.year] || []).push(doc);
             return acc;
@@ -56,9 +56,7 @@ export default function RegulationPage() {
                         {groupedByYear[year].map(doc => (
                             <li key={doc.id} className="border-b last:border-b-0">
                                 <a
-                                    // ✨ ส่วนที่แก้ไข ✨
-                                    // 1. เพิ่ม .replace() เพื่อใส่ fl_inline
-                                    // 2. ลบ attribute 'download' ออก
+                                    // ✨ จุดที่ต้องแก้ไขคือตรงนี้ครับ ✨
                                     href={doc.url.replace('/upload/', '/upload/fl_inline/')}
                                     target="_blank"
                                     rel="noopener noreferrer"

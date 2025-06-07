@@ -1,3 +1,5 @@
+// src/app/admin/api/uploadfile/route.js (ฉบับแก้ไข)
+
 import { NextResponse } from 'next/server';
 import cloudinary from '@/config/cloudinary';
 
@@ -17,16 +19,13 @@ export async function POST(req) {
     const folder = folderParts.filter(part => part).join('/');
 
     const uploadPromises = files.map(async (file, index) => {
-      const fileNameWithExtension = imageNames[index]?.toString();
-      // ✨ **แก้ไขจุดนี้:** ใช้ชื่อไฟล์ที่ "ไม่มีนามสกุล" เป็น public_id
-      // Cloudinary จะจัดการนามสกุลใน URL ให้เองเมื่อ resource_type ถูกต้อง
-      const publicId = fileNameWithExtension.slice(0, fileNameWithExtension.lastIndexOf('.'));
+      // ✨ **แก้ไขจุดนี้:** ใช้ชื่อไฟล์พร้อมนามสกุลเป็น public_id โดยตรง
+      const publicId = imageNames[index]?.toString();
       
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
       return new Promise((resolve, reject) => {
-        // ✨ **แก้ไขจุดนี้:** กลับมาใช้ `upload_stream` ที่ถูกต้องสำหรับ Buffer
         cloudinary.uploader.upload_stream(
           {
             folder: folder,
@@ -37,12 +36,13 @@ export async function POST(req) {
             if (err) return reject(err);
             resolve(res);
           }
-        ).end(buffer); // ส่ง buffer เข้าที่ .end()
+        ).end(buffer);
       });
     });
 
     const results = await Promise.all(uploadPromises);
 
+    // URL ที่ได้จากตรงนี้จะมีนามสกุลไฟล์ที่ถูกต้องแล้ว
     return NextResponse.json({
       message: 'Upload successful',
       results: results.map(res => ({
@@ -53,7 +53,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error('Upload Error:', error);
-    // ส่ง error ที่เป็น object กลับไปเพื่อดูรายละเอียดได้ง่ายขึ้น
     return NextResponse.json({ 
         error: 'Upload failed', 
         details: error.message,
