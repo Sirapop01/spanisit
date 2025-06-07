@@ -52,8 +52,8 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                        className={`hover:text-secondary ${pathname === '/contact' ? 'text-secondary' : 'text-white'}`}
-                        href="/contact"
+                        className={`hover:text-secondary ${pathname === '/admin/complaint' ? 'text-secondary' : 'text-white'}`}
+                        href="/admin/complaint"
                     >
                         การแก้ไขปัญหา
                     </Link>
@@ -113,12 +113,12 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/contact' ? 'text-secondary' : ''
+                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/admin/complaint' ? 'text-secondary' : ''
                             }`}
-                        href="/contact"
+                        href="/admin/complaint"
                         onClick={() => setIsOpen(false)}
                     >
-                        ติดต่อและร้องเรียน
+                        การแก้ไขปัญหา
                     </Link>
                 </div>
 
