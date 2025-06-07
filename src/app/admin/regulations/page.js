@@ -1,181 +1,138 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import LoadingSpinner from '@/components/loading';
+import { getDocuments, deleteRegulation } from '@/services/regulationsServices';
+import Swal from 'sweetalert2';
 import { Icon } from '@iconify/react';
-import { addDocument } from '@/services/regulationsServices';
+import LoadingSpinner from '@/components/loading';
 
-export default function AddRulePage() {
+export default function AdminRegulationsPage() {
     const router = useRouter();
+    // แก้ไข state 'documents' ให้เก็บข้อมูลเป็น Object เพื่อจัดกลุ่มตามปี
+    const [documentsByYear, setDocumentsByYear] = useState({});
+    const [loading, setLoading] = useState(true);
 
-    const [formData, setFormData] = useState({
-        year: '',
-        category: '',
-        title: '',
-    });
+    const fetchDocuments = async () => {
+        setLoading(true);
+        const res = await getDocuments();
+        if (res.success) {
+            // แปลงข้อมูลจาก groupedData เป็น Array ปกติ
+            const allDocs = Object.values(res.data).flat();
 
-    const [file, setFile] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState({});
+            // จัดกลุ่มเอกสารทั้งหมดตามปี
+            const groupedByYear = allDocs.reduce((acc, doc) => {
+                const year = doc.year;
+                if (!acc[year]) {
+                    acc[year] = [];
+                }
+                acc[year].push(doc);
+                return acc;
+            }, {});
 
-    const handleChange = (e) => {
-        const { id, value } = e.target;
-        setFormData(prev => ({ ...prev, [id]: value }));
-    };
-
-    const handleFileChange = (e) => {
-        setFile(e.target.files ? e.target.files[0] : null);
-    };
-
-    const validate = () => {
-        const newErrors = {};
-        if (!formData.year) newErrors.year = 'กรุณากรอกปี พ.ศ.';
-        if (!formData.category) newErrors.category = 'กรุณาเลือกหมวดหมู่';
-        if (!formData.title) newErrors.title = 'กรุณากรอกชื่อไฟล์';
-        if (!file) newErrors.file = 'กรุณาเลือกไฟล์';
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const resetForm = () => {
-        setFormData({ year: '', category: '', title: '' });
-        setFile(null);
-        setErrors({});
-        if (document.getElementById('fileInput')) {
-            document.getElementById('fileInput').value = '';
+            setDocumentsByYear(groupedByYear);
+        } else {
+            Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลได้', 'error');
         }
+        setLoading(false);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!validate()) {
-            toast.warn('กรุณากรอกข้อมูลให้ครบถ้วน');
-            return;
-        }
+    useEffect(() => {
+        fetchDocuments();
+    }, []);
 
-        setIsLoading(true);
-        const uploadData = new FormData();
-
-        // ---- ✨ สร้างชื่อไฟล์พร้อมนามสกุล ✨ ----
-        const originalFileName = file.name;
-        const fileExtension = originalFileName.slice(originalFileName.lastIndexOf('.'));
-        const fileNameWithExtension = formData.title.trim() + fileExtension;
-
-        uploadData.append('imageName', fileNameWithExtension);
-        uploadData.append('file', file);
-        uploadData.append('year', formData.year);
-        uploadData.append('type', formData.category);
-
-        try {
-            const uploadResponse = await axios.post('/admin/api/uploadfile', uploadData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-
-            const uploadedFileUrl = uploadResponse.data.results[0].url;
-
-            const documentData = {
-                year: parseInt(formData.year),
-                title: formData.title,
-                category: formData.category,
-                url: uploadedFileUrl,
-            };
-
-            const result = await addDocument(documentData);
-
-            if (result.success) {
-                toast.success("บันทึกข้อมูลเอกสารสำเร็จ!");
-                resetForm();
-            } else {
-                toast.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    const handleDelete = (id, title) => {
+        Swal.fire({
+            title: 'คุณแน่ใจหรือไม่?',
+            text: `คุณต้องการลบไฟล์ "${title}" ใช่หรือไม่?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ใช่, ลบเลย',
+            cancelButtonText: 'ยกเลิก'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const res = await deleteRegulation(id);
+                if (res.success) {
+                    Swal.fire('สำเร็จ!', 'ไฟล์ถูกลบเรียบร้อยแล้ว', 'success');
+                    fetchDocuments(); // โหลดข้อมูลใหม่
+                } else {
+                    Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถลบไฟล์ได้', 'error');
+                }
             }
-        } catch (error) {
-            toast.error("เกิดข้อผิดพลาดในการอัปโหลดไฟล์");
-        } finally {
-            setIsLoading(false);
-        }
+        });
     };
+    
+    const getCategoryText = (category) => {
+        if (category === 'rules') return 'ระเบียบ';
+        if (category === 'constitutions') return 'ธรรมนูญ';
+        return 'อื่นๆ';
+    }
+
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    // ดึงปีทั้งหมดมาเรียงลำดับจากมากไปน้อย (ปีล่าสุดก่อน)
+    const sortedYears = Object.keys(documentsByYear).sort((a, b) => b - a);
 
     return (
-        <div className="container mx-auto p-4 pt-6 md:p-6 lg:p-12 text-secondary">
-            {isLoading && <LoadingSpinner />}
-            <h1 className="text-3xl font-bold mb-8 text-center text-primary">
-                เพิ่มระเบียบและธรรมนูญนิสิต
-            </h1>
-            <form
-                onSubmit={handleSubmit}
-                className="max-w-lg mx-auto bg-white p-8 rounded-xl shadow-lg space-y-6"
-                noValidate
-            >
-                {/* Year Input */}
-                <div>
-                    <label htmlFor="year" className="block text-sm font-medium mb-1">ปี พ.ศ.:</label>
-                    <input
-                        type="number"
-                        id="year"
-                        value={formData.year}
-                        onChange={handleChange}
-                        className={`mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-sky-500 sm:text-sm ${errors.year ? 'border-red-500' : 'border-gray-300'}`}
-                        placeholder="เช่น 2567"
-                    />
-                    {errors.year && <p className="text-red-500 text-xs mt-1">{errors.year}</p>}
-                </div>
-
-                {/* Category Select */}
-                <div>
-                    <label htmlFor="category" className="block text-sm font-medium mb-1">หมวดหมู่:</label>
-                    <select
-                        id="category"
-                        value={formData.category}
-                        onChange={handleChange}
-                        className={`mt-1 block w-full px-4 py-2 border bg-white rounded-md shadow-sm focus:outline-none focus:ring-sky-500 sm:text-sm ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
-                    >
-                        <option value="" disabled>-- เลือกหมวดหมู่ --</option>
-                        <option value="rules">ระเบียบ</option>
-                        <option value="constitutions">ธรรมนูญ</option>
-                    </select>
-                    {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
-                </div>
-
-                {/* Title Input */}
-                <div>
-                    <label htmlFor="title" className="block text-sm font-medium mb-1">ชื่อไฟล์ (สำหรับแสดงผล):</label>
-                    <input
-                        type="text"
-                        id="title"
-                        value={formData.title}
-                        onChange={handleChange}
-                        className={`mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-sky-500 sm:text-sm ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
-                        placeholder="เช่น ระเบียบการแต่งกาย"
-                    />
-                    {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
-                </div>
-
-                {/* File Input */}
-                <div>
-                    <label htmlFor="fileInput" className="block text-sm font-medium mb-1">เลือกไฟล์:</label>
-                    <input
-                        type="file"
-                        id="fileInput"
-                        onChange={handleFileChange}
-                        className={`mt-1 block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 ${errors.file ? 'text-red-500' : ''}`}
-                        accept=".pdf,.doc,.docx"
-                    />
-                    {errors.file && <p className="text-red-500 text-xs mt-1">{errors.file}</p>}
-                    {file && <p className="text-sm text-gray-500 mt-2">ไฟล์ที่เลือก: {file.name}</p>}
-                </div>
-
+        <div className="container mx-auto p-4 md:p-8">
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-primary">จัดการระเบียบและธรรมนูญ</h1>
                 <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-secondary hover:bg-primary text-white font-semibold py-2.5 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 disabled:bg-gray-400 transition duration-150 ease-in-out"
+                    onClick={() => router.push('/admin/regulations/add')}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
                 >
-                    {isLoading ? 'กำลังอัปโหลด...' : 'อัปโหลดและบันทึก'}
+                    <Icon icon="mdi:plus" />
+                    เพิ่มไฟล์ใหม่
                 </button>
-            </form>
+            </div>
+
+            {/* วนลูปตามปีที่จัดกลุ่มไว้ */}
+            {sortedYears.length > 0 ? sortedYears.map(year => (
+                <div key={year} className="mb-8">
+                    <h2 className="text-2xl font-semibold text-secondary mb-4">ปีการศึกษา {year}</h2>
+                    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                        <div className="overflow-x-auto text-secondary">
+                            <table className="min-w-full leading-normal">
+                                <thead>
+                                    <tr className="bg-gray-100">
+                                        <th className="px-5 py-3 border-b-2 text-left text-xs font-semibold uppercase">ชื่อไฟล์</th>
+                                        <th className="px-5 py-3 border-b-2 text-left text-xs font-semibold uppercase">หมวดหมู่</th>
+                                        <th className="px-5 py-3 border-b-2 text-center text-xs font-semibold uppercase">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {documentsByYear[year].map((doc) => (
+                                        <tr key={doc.id}>
+                                            <td className="px-5 py-4 border-b">
+                                                <p className="font-semibold">{doc.title}</p>
+                                            </td>
+                                            <td className="px-5 py-4 border-b text-sm">
+                                                {getCategoryText(doc.category)}
+                                            </td>
+                                            <td className="px-5 py-4 border-b text-center">
+                                                <button onClick={() => router.push(`/admin/regulations/edit/${doc.id}`)} className="text-indigo-600 hover:text-indigo-900 mr-4 font-semibold cursor-pointer">
+                                                    แก้ไข
+                                                </button>
+                                                <button onClick={() => handleDelete(doc.id, doc.title)} className="text-red-600 hover:text-red-900 font-semibold cursor-pointer">
+                                                    ลบ
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )) : (
+                <div className="text-center py-10 text-gray-500 bg-white rounded-lg shadow-md">
+                    <p>ยังไม่มีไฟล์ในระบบ</p>
+                </div>
+            )}
         </div>
     );
 }
