@@ -12,7 +12,7 @@ export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const pathname = usePathname();
-    const isWorkingPage = pathname.startsWith('/activities') || pathname.startsWith('/issues'); // สำหรับ dropdown
+    const isWorkingPage = pathname.startsWith('/activities') || pathname.startsWith('/complaint'); // สำหรับ dropdown
     const router = useRouter();
 
     const handleClick = () => {
@@ -62,8 +62,8 @@ export default function Navbar() {
                                 | โครงการ/กิจกรรม
                             </Link>
                             <Link
-                                href="/issues"
-                                className={`block py-2 hover:text-primary border-b border-secondary ml-3 mr-3 ${pathname === '/issues' ? 'text-primary' : 'text-secondary'
+                                href="/complaint"
+                                className={`block py-2 hover:text-primary border-b border-secondary ml-3 mr-3 ${pathname === '/complaint' ? 'text-primary' : 'text-secondary'
                                     }`}
                             >
                                 | การผลักดันปัญหา
@@ -158,9 +158,9 @@ export default function Navbar() {
                         </Link>
 
                         <Link
-                            href="/issues"
+                            href="/complaint"
                             onClick={() => setIsOpen(false)}
-                            className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/issues' ? 'text-secondary' : ''
+                            className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/complaint' ? 'text-secondary' : ''
                                 }`}
                         >
                             การผลักดันปัญหา

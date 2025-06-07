@@ -1,22 +1,28 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Nav from '@/components/nav';
 import Footer from '@/components/footer';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { Icon } from '@iconify/react';
 import BannerSection from '@/components/BannerSection';
-import { SiLine, SiTiktok } from 'react-icons/si';
-import { FaFacebook, FaInstagram, FaTiktok, FaTwitter, FaYoutube } from 'react-icons/fa';
+import { SiLine } from 'react-icons/si';
+import { FaFacebook, FaInstagram, FaTiktok, FaTwitter } from 'react-icons/fa';
+
+import Swal from 'sweetalert2';
+import { addComplaint } from '@/services/complaintServices';
 
 export default function ContactPage() {
+    const router = useRouter();
     const [form, setForm] = useState({
         name: '',
         email: '',
         subject: '',
         message: '',
     });
+    const [isLoading, setIsLoading] = useState(false); // ✅ เพิ่ม state สำหรับ loading
 
     useEffect(() => {
         AOS.init({ duration: 800, once: true });
@@ -26,10 +32,52 @@ export default function ContactPage() {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     }
 
-    function handleSubmit(e) {
+    // --- ✅ อัปเดตฟังก์ชัน handleSubmit ---
+    async function handleSubmit(e) {
         e.preventDefault();
-        // TODO: actually send `form` to your API
-        setForm({ name: '', email: '', subject: '', message: '' });
+        setIsLoading(true);
+
+        // แสดง loading alert
+        Swal.fire({
+            title: 'กำลังส่งข้อมูล...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
+        try {
+            const result = await addComplaint(form);
+            if (result.success) {
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ส่งเรื่องร้องเรียนสำเร็จ!',
+                    html: 'เราได้รับข้อความของคุณแล้ว<br>คุณสามารถติดตามสถานะการดำเนินการได้ที่หน้า<b>การผลักดันปัญหา</b>',
+                    showCancelButton: true,
+                    confirmButtonText: 'ไปที่หน้าติดตามปัญหา',
+                    cancelButtonText: 'ปิด',
+                    confirmButtonColor: '#153A57', 
+                    cancelButtonColor: '#6c757d',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        router.push('/issues'); 
+                    }
+                });
+                setForm({ name: '', email: '', subject: '', message: '' });
+            } else {
+                throw new Error('ไม่สามารถส่งข้อมูลได้');
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: 'ไม่สามารถส่งเรื่องร้องเรียนได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง',
+            });
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     return (
@@ -62,28 +110,27 @@ export default function ContactPage() {
                             </a>
                         </li>
                         <li className="flex flex-col gap-4 mt-4">
-                            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="flex items-center space-x-2">
+                            <a href="https://facebook.com/spanisit.ku.src" target="_blank" rel="noreferrer" className="flex items-center space-x-2">
                                 <FaFacebook className="text-2xl text-secondary hover:text-primary transition" />
                                 <span>สภาผู้แทนนิสิตฯ ศรีราชา</span>
                             </a>
-                            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="flex items-center space-x-2">
+                            <a href="https://instagram.com/spanisit.ku.src" target="_blank" rel="noreferrer" className="flex items-center space-x-2">
                                 <FaInstagram className="text-2xl text-secondary hover:text-primary transition" />
                                 <span>SPANISIT.KU.SRC</span>
                             </a>
-                            <a href="https://twitter.com" target="_blank" rel="noreferrer" className="flex items-center space-x-2">
+                            <a href="https://twitter.com/spanisit_kusrc" target="_blank" rel="noreferrer" className="flex items-center space-x-2">
                                 <FaTwitter className="text-2xl text-secondary hover:text-primary transition" />
-                                <span>@459wzngs</span>
+                                <span>@spanisit_kusrc</span>
                             </a>
-                            <a href="https://line.me" target="_blank" rel="noreferrer" className="flex items-center space-x-2">
+                            <a href="https://line.me/R/ti/p/@459wzngs?ref=website_button" target="_blank" rel="noreferrer" className="flex items-center space-x-2">
                                 <SiLine className="text-2xl text-secondary hover:text-primary transition" />
                                 <span>@spanisit_kusrc</span>
                             </a>
-                            <a href="https://tiktok.com" target="_blank" rel="noreferrer" className="flex items-center space-x-2">
+                            <a href="https://tiktok.com/@spanisit.ku.src" target="_blank" rel="noreferrer" className="flex items-center space-x-2">
                                 <FaTiktok className="text-2xl text-secondary hover:text-primary transition" />
                                 <span>spanisit.ku.src</span>
                             </a>
                         </li>
-
                     </ul>
                 </div>
 
@@ -94,7 +141,7 @@ export default function ContactPage() {
                 >
                     <iframe
                         title="KU Sriracha Campus"
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3885.7037495636714!2d100.91825467454875!3d13.117944511653937!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3102b9dbb703b1a1%3A0xeccebb34440cd95c!2z4Lit4Liy4LiE4Liy4LijIDkg4Lio4Li54LiZ4Lii4LmM4LiB4Li04LiI4LiB4Lij4Lij4Lih!5e0!3m2!1sth!2sth!4v1745336718562!5m2!1sth!2sth"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.204501229792!2d100.92138991535917!3d13.111838690858104!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3102c5d183185c7d%3A0x85326f83b1a5e143!2sKasetsart%20University%20Sriracha%20Campus!5e0!3m2!1sen!2sth!4v1628585474883!5m2!1sen!2sth"
                         width="100%"
                         height="100%"
                         style={{ border: 0 }}
@@ -103,7 +150,6 @@ export default function ContactPage() {
                         referrerPolicy="no-referrer-when-downgrade"
                     />
                 </div>
-
             </div>
 
             {/* Feedback form */}
@@ -128,7 +174,7 @@ export default function ContactPage() {
                             value={form.name}
                             onChange={handleChange}
                             placeholder="กรอกชื่อ–นามสกุลของคุณ"
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-secondary focus:ring-1 placeholder-gray-500" // เพิ่ม placeholder-gray-500
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-secondary focus:ring-1 placeholder-gray-500 text-secondary"
                             required
                         />
                     </div>
@@ -140,7 +186,7 @@ export default function ContactPage() {
                             value={form.email}
                             onChange={handleChange}
                             placeholder="example@email.com"
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-secondary focus:ring-1 placeholder-gray-500" // เพิ่ม placeholder-gray-500
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-secondary focus:ring-1 placeholder-gray-500 text-secondary"
                             required
                         />
                     </div>
@@ -152,7 +198,7 @@ export default function ContactPage() {
                             value={form.subject}
                             onChange={handleChange}
                             placeholder="กรอกหัวข้อการร้องเรียน"
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-secondary focus:ring-1 placeholder-gray-500" // เพิ่ม placeholder-gray-500
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-secondary focus:ring-1 placeholder-gray-500 text-secondary"
                             required
                         />
                     </div>
@@ -164,22 +210,21 @@ export default function ContactPage() {
                             onChange={handleChange}
                             placeholder="กรอกรายละเอียดเพิ่มเติมเกี่ยวกับการร้องเรียนของคุณ"
                             rows={5}
-                            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-secondary focus:ring-1 placeholder-gray-500" // เพิ่ม placeholder-gray-500
+                            className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-secondary focus:ring-1 placeholder-gray-500 text-secondary"
                             required
                         />
                     </div>
                     <div className="md:col-span-2 text-center">
                         <button
                             type="submit"
-                            className="bg-secondary text-white px-6 py-2 rounded-full hover:bg-primary transition"
+                            className="bg-secondary text-white px-6 py-2 rounded-full hover:bg-primary transition disabled:bg-gray-400"
+                            disabled={isLoading} // ✅ ปิดปุ่มเมื่อกำลังโหลด
                         >
-                            ส่งเรื่องร้องเรียน
+                            {isLoading ? 'กำลังส่ง...' : 'ส่งเรื่องร้องเรียน'}
                         </button>
                     </div>
                 </form>
-
             </div>
-
             <Footer />
         </div>
     );
