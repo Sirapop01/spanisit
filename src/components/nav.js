@@ -72,8 +72,8 @@ export default function Navbar() {
                     </div>
 
                     <Link
-                        className={`hover:text-secondary ${pathname === '/rule' ? 'text-secondary' : 'text-white'}`}
-                        href="/rule"
+                        className={`hover:text-secondary ${pathname === '/regulations' ? 'text-secondary' : 'text-white'}`}
+                        href="/regulations"
                     >
                         ระเบียบ
                     </Link>

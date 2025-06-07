@@ -30,7 +30,7 @@ export default function AdminMemberPage() {
       Swal.close()
     }
     fetchYears()
-  }, [])
+  }, [members])
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -53,6 +53,7 @@ export default function AdminMemberPage() {
     router.push(`/admin/member/add`)
   }
 
+  // ไม่มีการแก้ไขสำหรับ handleDeleteMember
   const handleDeleteMember = async (memberId) => {
     const confirmDelete = await Swal.fire({
       title: 'คุณแน่ใจไหม?',
@@ -61,22 +62,23 @@ export default function AdminMemberPage() {
       showCancelButton: true,
       confirmButtonText: 'ใช่, ลบเลย',
       cancelButtonText: 'ยกเลิก'
-    })
+    });
 
     if (confirmDelete.isConfirmed) {
-      Swal.fire({ title: 'กำลังลบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() })
+      Swal.fire({ title: 'กำลังลบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
-      const res = await deleteMemberById(memberId)
+      const res = await deleteMemberById(memberId);
+
       if (res.success) {
-        setMembers(members.filter((m) => m.id !== memberId))
-        Swal.fire('สำเร็จ!', 'สมาชิกถูกลบเรียบร้อยแล้ว', 'success')
+        setMembers(members.filter((m) => m.id !== memberId));
+        Swal.fire('สำเร็จ!', 'สมาชิกถูกลบเรียบร้อยแล้ว', 'success');
       } else {
-        Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถลบสมาชิกได้', 'error')
+        Swal.fire('เกิดข้อผิดพลาด!', 'ไม่สามารถลบสมาชิกได้', 'error');
       }
 
-      Swal.close()
+      Swal.close();
     }
-  }
+  };
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8 text-primary">
