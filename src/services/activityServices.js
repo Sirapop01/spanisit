@@ -9,6 +9,9 @@ import {
     getDoc, 
     doc,
     distinct,
+    updateDoc,
+    deleteDoc, 
+    Timestamp,
 } from "firebase/firestore";
 
 const activityRef = collection(db, 'activities');
@@ -76,22 +79,54 @@ export const getActivityByYrs = async (activityYrs) => {
 
 export const getActivityById = async (activityId) => {
     try {
-      const docRef = doc(activityRef, activityId)
-      const docSnap = await getDoc(docRef)
-  
-      if (!docSnap.exists()) {
-        return { success: true, data: null }
-      }
-  
-      return {
-        success: true,
-        data: {
-          id: docSnap.id,
-          ...docSnap.data(),
-        },
-      }
+        const docRef = doc(db, 'activities', activityId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            // แปลง Firestore Timestamps เป็น JavaScript Date objects
+            if (data.startDate && data.startDate.toDate) {
+                data.startDate = data.startDate.toDate();
+            }
+            if (data.endDate && data.endDate.toDate) {
+                data.endDate = data.endDate.toDate();
+            }
+            return { success: true, data: { id: docSnap.id, ...data } };
+        } else {
+            return { success: false, error: 'Document not found' };
+        }
     } catch (e) {
-      console.log('Error getting document:', e)
-      return { success: false, error: e }
+        console.error('Error getting activity by ID: ', e);
+        return { success: false, error: e };
     }
-  }
+};
+
+export const updateActivity = async (id, updatedData) => {
+    try {
+        const docRef = doc(db, 'activities', id);
+        // แปลงวันที่กลับเป็น Firestore Timestamps ก่อนบันทึก
+        const dataToUpdate = {
+            ...updatedData,
+            startDate: Timestamp.fromDate(new Date(updatedData.startDate)),
+            endDate: Timestamp.fromDate(new Date(updatedData.endDate)),
+            updatedAt: Timestamp.now(),
+        };
+        await updateDoc(docRef, dataToUpdate);
+        return { success: true, message: 'อัปเดตกิจกรรมสำเร็จ' };
+    } catch (error) {
+        console.error('Error updating activity: ', error);
+        return { success: false, error };
+    }
+};
+
+// ✅ (ใหม่) ฟังก์ชันสำหรับลบกิจกรรม
+export const deleteActivity = async (id) => {
+    try {
+        const docRef = doc(db, 'activities', id);
+        await deleteDoc(docRef);
+        return { success: true, message: 'ลบกิจกรรมสำเร็จ' };
+    } catch (error) {
+        console.error('Error deleting activity: ', error);
+        return { success: false, error };
+    }
+};
