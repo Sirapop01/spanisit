@@ -1,4 +1,4 @@
-// src/app/admin/api/uploadfile/route.js (ฉบับแก้ไข)
+// src/app/admin/api/uploadfile/route.js
 
 import { NextResponse } from 'next/server';
 import cloudinary from '@/config/cloudinary';
@@ -7,7 +7,7 @@ export async function POST(req) {
   try {
     const formData = await req.formData();
     const files = formData.getAll('file');
-    const imageNames = formData.getAll('imageName'); // ชื่่อไฟล์ที่รวมนามสกุลแล้ว
+    const imageNames = formData.getAll('imageName'); 
     const type = formData.get('type') || 'documents';
     const year = formData.get('year');
 
@@ -19,30 +19,31 @@ export async function POST(req) {
     const folder = folderParts.filter(part => part).join('/');
 
     const uploadPromises = files.map(async (file, index) => {
-      // ✨ **แก้ไขจุดนี้:** ใช้ชื่อไฟล์พร้อมนามสกุลเป็น public_id โดยตรง
-      const publicId = imageNames[index]?.toString();
+      const publicId = imageNames[index]?.toString().split('.').slice(0, -1).join('.');
       
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
       return new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
+        const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: folder,
             public_id: publicId,
-            resource_type: 'raw',
+            resource_type: 'raw', // ใช้ 'raw' สำหรับไฟล์ที่ไม่ใช่รูปภาพ เช่น PDF
+            // ตั้งค่าให้ไฟล์เปิดแบบ inline
+            transformation: [{ flags: "attachment:inline" }]
           },
           (err, res) => {
             if (err) return reject(err);
             resolve(res);
           }
-        ).end(buffer);
+        );
+        uploadStream.end(buffer);
       });
     });
 
     const results = await Promise.all(uploadPromises);
 
-    // URL ที่ได้จากตรงนี้จะมีนามสกุลไฟล์ที่ถูกต้องแล้ว
     return NextResponse.json({
       message: 'Upload successful',
       results: results.map(res => ({

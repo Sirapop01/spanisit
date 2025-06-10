@@ -108,18 +108,39 @@ export const updateMember = async (id, updatedData) => {
 export const deleteMemberById = async (id) => {
     try {
         const docRef = doc(db, 'members', id);
-
         const memberSnapshot = await getDoc(docRef);
+
         if (!memberSnapshot.exists()) {
             return { success: false, message: 'ไม่พบสมาชิกที่ต้องการลบ' };
         }
 
-        // 1. ลบเอกสารสมาชิกจาก Firestore เท่านั้น
+        const memberData = memberSnapshot.data();
+        const imageUrl = memberData.photoUrl;
+
         await deleteDoc(docRef);
+
+        if (imageUrl) {
+            const uploadIndex = imageUrl.indexOf('/upload/');
+            if (uploadIndex !== -1) {
+                const publicIdWithVersion = imageUrl.substring(uploadIndex + 8); 
+                const publicId = publicIdWithVersion.substring(publicIdWithVersion.indexOf('/') + 1).split('.')[0];
+
+                console.log("Attempting to delete Cloudinary public_id:", publicId); 
+
+                await fetch('/admin/api/delete', {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        public_ids: [publicId],
+                        resource_type: 'image'
+                    })
+                });
+            }
+        }
 
         return { success: true, message: 'ลบสมาชิกสำเร็จ' };
     } catch (error) {
-        console.error('เกิดข้อผิดพลาดในการลบเอกสารสมาชิก: ', error);
+        console.error('เกิดข้อผิดพลาดในการลบสมาชิก: ', error);
         return { success: false, message: 'ไม่สามารถลบสมาชิกได้' };
     }
 };
