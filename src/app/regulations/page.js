@@ -56,8 +56,8 @@ export default function RegulationPage() {
                         {groupedByYear[year].map(doc => (
                             <li key={doc.id} className="border-b last:border-b-0">
                                 <a
-                                    // ✨ จุดที่ต้องแก้ไขคือตรงนี้ครับ ✨
-                                    href={doc.url.replace('/upload/', '/upload/fl_inline/')}
+                                    // ✨ ไม่ต้องแก้ไข URL ที่นี่แล้ว
+                                    href={doc.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center justify-between p-3 rounded-md hover:bg-sky-50 transition duration-200 text-secondary hover:text-primary"

@@ -20,6 +20,7 @@ export default function EditComplaintPage() {
     const [files, setFiles] = useState([]);
     const [existingFiles, setExistingFiles] = useState([]); // ✅ State นี้จะใช้จัดการไฟล์เดิม
     const [isLoading, setIsLoading] = useState(true);
+    const [originalFiles, setOriginalFiles] = useState([]);
 
     const statusOptions = ['กำลังดำเนินการ', 'อนุมัติ', 'ไม่อนุมัติ'];
 
@@ -33,6 +34,7 @@ export default function EditComplaintPage() {
                 setStatus(res.data.status);
                 setAdminNote(res.data.adminNote || '');
                 setExistingFiles(res.data.evidenceURLs || []);
+                setOriginalFiles(res.data.evidenceURLs || []);
             } else {
                 Swal.fire('เกิดข้อผิดพลาด', 'ไม่พบข้อมูลการร้องเรียน', 'error')
                     .then(() => router.push('/admin/complaint'));
@@ -65,10 +67,32 @@ export default function EditComplaintPage() {
         setIsLoading(true);
 
         try {
-            // เริ่มต้นด้วย list ของไฟล์ที่ (อาจจะ) ถูกลบออกไปแล้ว
+            // ส่วนที่ 1: ตรวจสอบและลบไฟล์ที่ถูกเอาออกใน Cloudinary
+            const filesToDelete = originalFiles.filter(url => !existingFiles.includes(url));
+            if (filesToDelete.length > 0) {
+                // --- ✅ ส่วนที่แก้ไขให้ดึง public_id ได้อย่างถูกต้อง ---
+                const publicIdsToDelete = filesToDelete.map(url => {
+                    const uploadIndex = url.indexOf('/upload/');
+                    const publicIdWithVersion = url.substring(uploadIndex + 8);
+                    const publicId = publicIdWithVersion.substring(publicIdWithVersion.indexOf('/') + 1).split('.')[0];
+                    return publicId;
+                });
+
+                console.log("Attempting to delete complaint evidence:", publicIdsToDelete); // สำหรับ Debug
+
+                await fetch('/admin/api/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        public_ids: publicIdsToDelete,
+                        resource_type: 'raw' // ไฟล์หลักฐานเป็น 'raw'
+                    })
+                });
+            }
+
             let uploadedFileUrls = [...existingFiles];
 
-            // ตรวจสอบถ้ามีการอัปโหลดไฟล์ใหม่
+            // ... (ส่วนที่ 2 และ 3 เหมือนเดิม)
             if (files.length > 0) {
                 const uploadData = new FormData();
                 files.forEach(file => {
@@ -86,7 +110,7 @@ export default function EditComplaintPage() {
             const updateData = {
                 status,
                 adminNote,
-                evidenceURLs: uploadedFileUrls, // ✅ ส่ง list ไฟล์ที่อัปเดตแล้วไปบันทึก
+                evidenceURLs: uploadedFileUrls,
             };
 
             const result = await updateComplaint(id, updateData);
