@@ -49,7 +49,7 @@ export default function ContactPage() {
         try {
             const result = await addComplaint(form);
             if (result.success) {
-                
+
                 Swal.fire({
                     icon: 'success',
                     title: 'ส่งเรื่องร้องเรียนสำเร็จ!',
@@ -57,11 +57,11 @@ export default function ContactPage() {
                     showCancelButton: true,
                     confirmButtonText: 'ไปที่หน้าติดตามปัญหา',
                     cancelButtonText: 'ปิด',
-                    confirmButtonColor: '#153A57', 
+                    confirmButtonColor: '#153A57',
                     cancelButtonColor: '#6c757d',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        router.push('/issues'); 
+                        router.push('/complaint');
                     }
                 });
                 setForm({ name: '', email: '', subject: '', message: '' });
@@ -166,8 +166,11 @@ export default function ContactPage() {
                     data-aos="fade-up"
                     data-aos-delay={200}
                 >
-                    <div>
-                        <label className="block text-gray-700 mb-1">ชื่อ–นามสกุล</label>
+                    <div >
+                        <div className='flex'>
+                            <label className="block text-gray-700 mb-1">ชื่อ–นามสกุล</label>
+                            <span className="text-red-500 text-sm mt-1 ml-1">*ข้อมูลส่วนตัวจะถูกเก็บเป็นความลับ</span>
+                        </div>
                         <input
                             type="text"
                             name="name"
