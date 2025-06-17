@@ -168,9 +168,9 @@ export default function Navbar() {
                     </div>
 
                     <Link
-                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/rule' ? 'text-secondary' : ''
+                        className={`border-b border-secondary mb-5 pb-2 w-full hover:text-secondary ${pathname === '/regulations' ? 'text-secondary' : ''
                             }`}
-                        href="/rule"
+                        href="/regulations"
                         onClick={() => setIsOpen(false)}
                     >
                         ระเบียบ
