@@ -4,8 +4,6 @@ import { useUserAuth } from "@/context/UserAuthContext";
 import { useRouter } from 'next/navigation'
 import { Icon } from "@iconify/react";
 
-// ✅ Component AddAnnouncementForm และ State ที่เกี่ยวข้องถูกลบออกไปแล้ว
-
 export default function AdminHome() {
     const router = useRouter();
     const { Logout, user } = useUserAuth();
@@ -19,23 +17,17 @@ export default function AdminHome() {
         }
     };
 
-    // ✅ (แก้ไข) Data สำหรับสร้าง Card
     const managementCards = [
-        // แก้ไข action ของ 'ประกาศ' ให้ไปที่หน้า /admin/announcements
-        // และรวม 'รายการประกาศ' เข้ามาด้วย
         { title: 'ประกาศ', description: 'เพิ่ม ลบ และแก้ไขประกาศทั้งหมด', icon: 'mdi:bullhorn-variant-outline', color: 'text-blue-500', buttonColor: 'bg-blue-500 hover:bg-blue-600', action: () => router.push('/admin/announcements') },
         { title: 'ทำเนียบสภา', description: 'จัดการข้อมูลสมาชิกสภาฯ', icon: 'mdi:account-group-outline', color: 'text-green-500', buttonColor: 'bg-green-500 hover:bg-green-600', action: () => router.push('/admin/member') },
         { title: 'เรื่องร้องเรียน', description: 'ดูและจัดการเรื่องร้องเรียน', icon: 'mdi:file-document-edit-outline', color: 'text-yellow-500', buttonColor: 'bg-yellow-500 hover:bg-yellow-600', action: () => router.push('/admin/complaint') },
         { title: 'โครงการ/กิจกรรม', description: 'จัดการข้อมูลกิจกรรม', icon: 'mdi:calendar-star-outline', color: 'text-purple-500', buttonColor: 'bg-purple-500 hover:bg-purple-600', action: () => router.push('/admin/activities') },
-        { title: 'ระเบียบ/ธรรมนูญ', description: 'จัดการไฟล์เอกสาร', icon: 'mdi:book-open-page-variant-outline', color: 'text-red-500', buttonColor: 'bg-red-500 hover:bg-red-600', action: () => router.push('/admin/regulations') },
     ];
 
     return (
         <div className="min-h-screen bg-slate-50">
-            {/* Modal ถูกลบออกไปแล้ว */}
             
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* Header Section */}
                 <div className="text-center md:text-left md:flex md:items-center md:justify-between pb-8 border-b border-slate-200">
                     <div>
                         <h1 className="text-3xl font-bold text-slate-800">Admin Dashboard</h1>
@@ -51,7 +43,6 @@ export default function AdminHome() {
                     </div>
                 </div>
 
-                {/* Management Cards Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
                     {managementCards.map((card, index) => (
                         <div key={index} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex flex-col">

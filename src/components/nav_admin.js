@@ -36,9 +36,9 @@ export default function Navbar() {
                     <Link className={`hover:text-secondary ${pathname.startsWith('/admin/member') ? 'text-secondary' : 'text-white'}`} href="/admin/member">
                         ทำเนียบสภา
                     </Link>
-                    <Link className={`hover:text-secondary ${pathname.startsWith('/admin/regulations') ? 'text-secondary' : 'text-white'}`} href="/admin/regulations">
+                  { /* <Link className={`hover:text-secondary ${pathname.startsWith('/admin/regulations') ? 'text-secondary' : 'text-white'}`} href="/admin/regulations">
                         ระเบียบ
-                    </Link>
+                    </Link> */}
                     <Link className={`hover:text-secondary ${pathname.startsWith('/admin/activities') ? 'text-secondary' : 'text-white'}`} href="/admin/activities">
                         โครงการ/กิจกรรม
                     </Link>
